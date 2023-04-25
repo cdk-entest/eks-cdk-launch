@@ -17,6 +17,8 @@ date: 24/04/2023
 
 ## Architecture
 
+![arch](https://user-images.githubusercontent.com/20411077/234173084-3deb3197-cbab-4471-bbff-497c7d6758d9.png)
+
 - Essential Networking
 - Essential Security
 
