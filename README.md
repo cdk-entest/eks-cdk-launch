@@ -31,6 +31,8 @@ Essential Security
 - Node role for all applications running inside the node
 - Use both node role and service account (EC2 launch type) for security best practice
 - Use both node role and pod execution role (Faragate launch type) for security best practice
+- Three policies are required to attach to the node role
+- AmazonEKSClusterPolicy is required to attach to the cluster role
 
 ## Network Stack
 
