@@ -13,7 +13,7 @@ date: 24/04/2023
 - Essential Networking
 - Essential Scurity
 - Launch an EKS Cluster
-- Deploy the First App
+- Deploy [the First App](https://github.com/cdk-entest/eks-cdk-launch/blob/master/yaml/hello-service.yaml)
 
 ## Architecture
 
