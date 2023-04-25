@@ -27,7 +27,7 @@ Essential Networking
 
 Essential Security
 
-- Cluster role so control plane can manage AWS services on your behalf
+- Cluster role so control plane can call other AWS services on your behalf
 - Node role for all applications running inside the node
 - Use both node role and service account (EC2 launch type) for security best practice
 - Use both node role and pod execution role (Faragate launch type) for security best practice
