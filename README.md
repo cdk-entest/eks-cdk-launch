@@ -232,8 +232,32 @@ const nodegroup = new aws_eks.CfnNodegroup(this, "AWSManagedNodeGroupDemo", {
 
 ## Troubleshooting
 
-Since the cluster created by CloudFormation, we need to run kube config update from our local terminal, then the terminal can access the cluster via kubectl. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
+Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
 
 ```bash
 aws eks update-kubeconfig --name cluster-xxxxx --role-arn arn:aws:iam::112233445566:role/yyyyy
+```
+
+Make sure that the role which your terminal assuming has a trust relationship with the CF execution role
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::$ACCOUNT:role/TeamRole"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
 ```
