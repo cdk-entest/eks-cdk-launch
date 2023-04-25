@@ -8,7 +8,7 @@ date: 24/04/2023
 
 ## Introduction
 
-[Github] shows essential components of an Amazon EKS cluster
+[Github](https://github.com/cdk-entest/eks-cdk-launch) shows essential components of an Amazon EKS cluster
 
 - Essential Networking
 - Essential Scurity
@@ -230,10 +230,8 @@ const nodegroup = new aws_eks.CfnNodegroup(this, "AWSManagedNodeGroupDemo", {
 
 ## Troubleshooting
 
-since the cluster created by CloudFormation, we need to run kube config update from our local terminal, then the terminal can access the cluster via kubectl
+Since the cluster created by CloudFormation, we need to run kube config update from our local terminal, then the terminal can access the cluster via kubectl. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
 
 ```bash
-
+aws eks update-kubeconfig --name cluster-xxxxx --role-arn arn:aws:iam::112233445566:role/yyyyy
 ```
-
-## Reference
