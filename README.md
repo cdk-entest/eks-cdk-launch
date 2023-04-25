@@ -19,8 +19,18 @@ date: 24/04/2023
 
 ![arch](https://user-images.githubusercontent.com/20411077/234173084-3deb3197-cbab-4471-bbff-497c7d6758d9.png)
 
-- Essential Networking
-- Essential Security
+Essential Networking
+
+- public and private access points
+- the control plane is hosted in an AWS account and VPC
+- the control plane can auto scale with at least 2 API server instances and 3 ectd instances
+
+Essential Security
+
+- Cluster role so control plane can manage AWS services on your behalf
+- Node role for all applications running inside the node
+- Use both node role and service account (EC2 launch type) for security best practice
+- Use both node role and pod execution role (Faragate launch type) for security best practice
 
 ## Network Stack
 
