@@ -13,8 +13,8 @@ const network = new VpcStack(app, "NetworkStack", {
   },
 });
 
-const eks = new EksClusterStack(app, "CdkEksFargateStack", {
-  clusterName: "EksClusterLevel2",
+const eks = new EksClusterStack(app, "EksClusterLevel1Stack", {
+  clusterName: "EksClusterLevel1",
   vpc: network.vpc,
   eksSecurityGroup: network.eksSecurityGroup,
   env: {
