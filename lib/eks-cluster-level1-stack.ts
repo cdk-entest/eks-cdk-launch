@@ -15,6 +15,7 @@ export class EksClusterStack extends Stack {
       subnet.subnetId.toString()
     );
 
+    // cluster role
     const role = new aws_iam.Role(
       this,
       `RoleForEksCluster-${props.clusterName}`,
@@ -28,6 +29,7 @@ export class EksClusterStack extends Stack {
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSClusterPolicy")
     );
 
+    // create eks cluster using level 1 CDK construct same as CF
     const cluster = new aws_eks.CfnCluster(
       this,
       `EksCluster-${props.clusterName}`,
@@ -92,6 +94,7 @@ export class EksClusterStack extends Stack {
       }
     );
 
+    // attach policies for node role
     nodeRole.addManagedPolicy(
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         "AmazonEKSWorkerNodePolicy"
@@ -126,16 +129,16 @@ export class EksClusterStack extends Stack {
         instanceTypes: ["t2.medium"],
         diskSize: 50,
         // ssh remote access
-        remoteAccess: {
-          ec2SshKey: "eks-node-ssh",
-        },
+        // remoteAccess: {
+        //   ec2SshKey: "eks-node-ssh",
+        // },
         // scaling configuration
         scalingConfig: {
           desiredSize: 2,
           maxSize: 5,
           minSize: 1,
         },
-        // update configuration
+        // update configuration rolling update
         updateConfig: {
           maxUnavailable: 1,
           // maxUnavailablePercentage: 30,
@@ -147,7 +150,55 @@ export class EksClusterStack extends Stack {
       }
     );
 
+    // fargate profile
+    const podRole = new aws_iam.Role(
+      this,
+      `RoleForFargatePod-${props.clusterName}`,
+      {
+        roleName: `RoleForFargatePod-${props.clusterName}`,
+        assumedBy: new aws_iam.ServicePrincipal(
+          "eks-fargate-pods.amazonaws.com"
+        ),
+      }
+    );
+
+    podRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "AmazonEKSFargatePodExecutionRolePolicy"
+      )
+    );
+
+    const appFargateProfile = new aws_eks.CfnFargateProfile(
+      this,
+      "FirstFargateProfileDemo1",
+      {
+        clusterName: cluster.name!,
+        podExecutionRoleArn: podRole.roleArn,
+        selectors: [
+          {
+            namespace: "demo",
+            labels: [
+              {
+                key: "environment",
+                value: "dev",
+              },
+            ],
+          },
+        ],
+        fargateProfileName: "demo",
+        // default all private subnet in the vpc
+        subnets: subnets,
+        tags: [
+          {
+            key: "name",
+            value: "test",
+          },
+        ],
+      }
+    );
+
     // dependencies
     nodegroup.addDependency(cluster);
+    appFargateProfile.addDependency(cluster);
   }
 }
