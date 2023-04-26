@@ -242,19 +242,17 @@ const nodegroup = new aws_eks.CfnNodegroup(this, "AWSManagedNodeGroupDemo", {
 });
 ```
 
-## Fargate Profile 
+## Fargate Profile
 
-create pod role 
+create pod role
 
-```ts 
+```ts
 const podRole = new aws_iam.Role(
   this,
   `RoleForFargatePod-${props.clusterName}`,
   {
     roleName: `RoleForFargatePod-${props.clusterName}`,
-    assumedBy: new aws_iam.ServicePrincipal(
-      "eks-fargate-pods.amazonaws.com"
-    ),
+    assumedBy: new aws_iam.ServicePrincipal("eks-fargate-pods.amazonaws.com"),
   }
 );
 
@@ -265,9 +263,9 @@ podRole.addManagedPolicy(
 );
 ```
 
-create a Fargate profile 
+create a Fargate profile
 
-```ts 
+```ts
 const appFargateProfile = new aws_eks.CfnFargateProfile(
   this,
   "FirstFargateProfileDemo1",
@@ -329,3 +327,9 @@ Make sure that the role which your terminal assuming has a trust relationship wi
   ]
 }
 ```
+
+## Reference
+
+- [Setup Container Insights](https://repost.aws/knowledge-center/cloudwatch-container-insights-eks-fargate)
+
+- [Container Insights Fargate](https://aws-otel.github.io/docs/getting-started/container-insights/eks-fargate)
