@@ -25,7 +25,6 @@ spec:
         app: hello-cdk8s
     spec:
       containers:
-        # - image: 351026122654.dkr.ecr.us-east-1.amazonaws.com/flask-web:latest
         - image: "paulbouwer/hello-kubernetes:1.7"
           name: hello-kubernetes
           ports:
