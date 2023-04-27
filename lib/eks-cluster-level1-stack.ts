@@ -11,7 +11,7 @@ export class EksClusterStack extends Stack {
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
 
-    const subnets: string[] = props.vpc.publicSubnets.map((subnet) =>
+    const subnets: string[] = props.vpc.privateSubnets.map((subnet) =>
       subnet.subnetId.toString()
     );
 
@@ -111,6 +111,12 @@ export class EksClusterStack extends Stack {
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy")
     );
 
+    nodeRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "CloudWatchAgentServerPolicy"
+      )
+    );
+
     // aws managed nodegroup
     const nodegroup = new aws_eks.CfnNodegroup(
       this,
@@ -168,6 +174,13 @@ export class EksClusterStack extends Stack {
       )
     );
 
+    podRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "CloudWatchAgentServerPolicy"
+      )
+    );
+
+    // fargate profile for app
     const appFargateProfile = new aws_eks.CfnFargateProfile(
       this,
       "FirstFargateProfileDemo1",
@@ -197,8 +210,33 @@ export class EksClusterStack extends Stack {
       }
     );
 
+    // fargate profile for monitor
+    const monitorFargateProfile = new aws_eks.CfnFargateProfile(
+      this,
+      "MonitorFargateProfile",
+      {
+        clusterName: cluster.name!,
+        podExecutionRoleArn: podRole.roleArn,
+        selectors: [
+          {
+            namespace: "fargate-container-insights",
+            labels: [],
+          },
+        ],
+        fargateProfileName: "monitor",
+        // default all private subnet in the vpc
+        subnets: subnets,
+        tags: [
+          {
+            key: "name",
+            value: "test",
+          },
+        ],
+      }
+    );
     // dependencies
     nodegroup.addDependency(cluster);
+    monitorFargateProfile.addDependency(cluster);
     appFargateProfile.addDependency(cluster);
   }
 }

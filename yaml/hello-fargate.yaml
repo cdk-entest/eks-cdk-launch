@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+      environment: dev
+  template:
+    metadata:
+      labels:
+        app: webapp
+        environment: dev
+    spec:
+      containers:
+        - name: go
+          image: public.ecr.aws/awsvijisarathy/prometheus-webapp:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "256m"
+              memory: "512Mi"
+            limits:
+              cpu: "256m"
+              memory: "512Mi"
