@@ -328,6 +328,14 @@ Make sure that the role which your terminal assuming has a trust relationship wi
 }
 ```
 
+## Troubleshooting
+
+Since the EKS cluster is created by an CloudFormation execution role, we need to take note
+
+- Update kube config with the role before running kubectl
+- Ensure that your terminal can assume the CF execution role (trust policy)
+- Assume the CF execution role, aws configure before running eksctl
+
 ## Reference
 
 - [Setup Container Insights](https://repost.aws/knowledge-center/cloudwatch-container-insights-eks-fargate)
@@ -337,3 +345,5 @@ Make sure that the role which your terminal assuming has a trust relationship wi
 - [Fluent-bit EKS Fargate](https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/)
 
 - [Node Selector Fluent-bit not in Fargate](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni-cn.yaml#L100)
+
+- [eksctl Service Account](https://aws.amazon.com/blogs/containers/introducing-amazon-cloudwatch-container-insights-for-amazon-eks-fargate-using-aws-distro-for-opentelemetry/)
