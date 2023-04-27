@@ -335,3 +335,5 @@ Make sure that the role which your terminal assuming has a trust relationship wi
 - [Container Insights Fargate](https://aws-otel.github.io/docs/getting-started/container-insights/eks-fargate)
 
 - [Fluent-bit EKS Fargate](https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/)
+
+- [Node Selector Fluent-bit not in Fargate](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni-cn.yaml#L100)
