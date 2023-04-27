@@ -296,6 +296,28 @@ const appFargateProfile = new aws_eks.CfnFargateProfile(
 );
 ```
 
+## Node Selector
+
+When an EKS cluster consists of EC2 nodegroup and Fargate profile, in some cases, we want to select specific pods to run some pods. To do that, we can use node labels, node selector, or affinity. For example, as Fargate profile does not support deamonset, we can select only EC2 nodes to launch deamon set as the following
+
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: eks.amazonaws.com/compute-type
+              operator: NotIn
+              values:
+                - fargate
+```
+
+show labels of nodes
+
+```bash
+kubect get nodes --show-labels
+```
+
 ## Troubleshooting
 
 Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
