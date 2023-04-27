@@ -367,3 +367,5 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - [Node Selector Fluent-bit not in Fargate](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni-cn.yaml#L100)
 
 - [eksctl Service Account](https://aws.amazon.com/blogs/containers/introducing-amazon-cloudwatch-container-insights-for-amazon-eks-fargate-using-aws-distro-for-opentelemetry/)
+
+- [Fargate Profile CPU and Mem](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html)
