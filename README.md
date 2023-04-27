@@ -328,8 +328,6 @@ Make sure that the role which your terminal assuming has a trust relationship wi
 }
 ```
 
-## Troubleshooting
-
 Since the EKS cluster is created by an CloudFormation execution role, we need to take note
 
 - Update kube config with the role before running kubectl
