@@ -333,3 +333,5 @@ Make sure that the role which your terminal assuming has a trust relationship wi
 - [Setup Container Insights](https://repost.aws/knowledge-center/cloudwatch-container-insights-eks-fargate)
 
 - [Container Insights Fargate](https://aws-otel.github.io/docs/getting-started/container-insights/eks-fargate)
+
+- [Fluent-bit EKS Fargate](https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/)
