@@ -318,39 +318,96 @@ show labels of nodes
 kubect get nodes --show-labels
 ```
 
-## Observability 
+## Cluster Authentication
 
-As the cluster using both EC2 nodegroup and Faragate profile, we need to setup both CloudWatch Agent and Fluent-bit for EC2 nodegroup and ADOT for Faragate profile. Also need to setup the metric server 
+- Kubernetes Role
+- Kubernetes RoleBinding
+- AWS IAM and RBAC
 
-Install metric sersver 
+Kubernetes Role to setup permissions or what actions are allowed
 
-```yaml 
-check the yaml/metric-server.yaml 
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  namespace: default
+  name: dev-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list", "patch", "update", "watch"]
 ```
 
-Install CloudWatch Agent and Fluent-bit in EC2 Nodegroup 
-- replace region with your target region 
+Kubernetes RoleBinding to bind an identity (group or user) with the Role
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: dev-role-binding
+  namespace: default
+subjects:
+  - kind: User
+    name: developer
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: dev-role
+  apiGroup: rbac.authorization.k8s.io
+```
+
+Update the aws-auth configmap
+
+```bash
+kubectl edit -n kube-system configmap/aws-auth
+```
+
+```yaml
+
+```
+
+Update the kube config
+
+```bash
+aws eks update-kubeconfig --name $ClusterName --role-arn $ROLE
+```
+
+## Observability
+
+As the cluster using both EC2 nodegroup and Faragate profile, we need to setup both CloudWatch Agent and Fluent-bit for EC2 nodegroup and ADOT for Faragate profile. Also need to setup the metric server
+
+Install metric sersver
+
+```yaml
+check the yaml/metric-server.yaml
+```
+
+Install CloudWatch Agent and Fluent-bit in EC2 Nodegroup
+
+- replace region with your target region
 - replace cluster-name with your cluster-name
 
-```yaml 
-check the yaml/cwagent-fluent-bit.yaml 
+```yaml
+check the yaml/cwagent-fluent-bit.yaml
 ```
 
-Install ADOT in Fargate profile: 
+Install ADOT in Fargate profile:
 
-- assume the CF exection role 
-- install iamserviceaccount by assuming CF exection role 
-- install ADOT agent by using the default role 
+- assume the CF exection role
+- install iamserviceaccount by assuming CF exection role
+- install ADOT agent by using the default role
 
-To assume CF exection role 
+To assume CF exection role
 
-```bash 
-aws sts assume-role --role-arn 'arn:aws:xxx' --role-session-name eks 
+```bash
+aws sts assume-role --role-arn 'arn:aws:xxx' --role-session-name eks
 ```
 
-Then update the ~/.aws/credentials with recevied credentials, then run the below bash script 
+Then update the ~/.aws/credentials with recevied credentials, then run the below bash script
 
-```bash 
+```bash
 #!/bin/bash
 CLUSTER_NAME=EksClusterLevel1
 REGION=ap-southeast-1
@@ -373,12 +430,12 @@ eksctl create iamserviceaccount \
 --approve
 ```
 
-After created the iamserviceaccount, use the default role to run below command 
+After created the iamserviceaccount, use the default role to run below command
 
-```bash 
+```bash
 ClusterName=EksClusterLevel1
 REGION=ap-southeast-1
-curl https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main/deployment-template/eks/otel-fargate-container-insights.yaml | sed 's/YOUR-EKS-CLUSTER-NAME/'${ClusterName}'/;s/us-east-1/'${Region}'/' | kubectl apply -f - 
+curl https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main/deployment-template/eks/otel-fargate-container-insights.yaml | sed 's/YOUR-EKS-CLUSTER-NAME/'${ClusterName}'/;s/us-east-1/'${Region}'/' | kubectl apply -f -
 ```
 
 ## Troubleshooting
