@@ -364,8 +364,23 @@ Update the aws-auth configmap
 kubectl edit -n kube-system configmap/aws-auth
 ```
 
-```yaml
+An example of the aws-auth, mapping role to user and groups
 
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - rolearn: xxx 
+      username: developer 
+    - rolearn: <ARN of instance role (not instance profile)>
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
 ```
 
 Update the kube config
