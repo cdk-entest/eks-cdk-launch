@@ -61,7 +61,7 @@ data:
   cwagentconfig.json: |
     {
       "agent": {
-        "region": "us-west-2"
+        "region": "ap-southeast-1"
       },
       "logs": {
         "metrics_collected": {
@@ -174,13 +174,13 @@ spec:
 
 ---
 # create configmap for cluster name and aws region for CloudWatch Logs
-# need to replace the placeholders EksClusterLevel1 and us-west-2
+# need to replace the placeholders EksClusterLevel1 and ap-southeast-1
 # and need to replace "On" and "2020"
 # and need to replace "Off" and "On"
 apiVersion: v1
 data:
   cluster.name: EksClusterLevel1
-  logs.region: us-west-2
+  logs.region: ap-southeast-1
   http.server: "On"
   http.port: "2020"
   read.head: "Off"

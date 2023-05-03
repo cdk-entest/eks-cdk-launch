@@ -318,6 +318,69 @@ show labels of nodes
 kubect get nodes --show-labels
 ```
 
+## Observability 
+
+As the cluster using both EC2 nodegroup and Faragate profile, we need to setup both CloudWatch Agent and Fluent-bit for EC2 nodegroup and ADOT for Faragate profile. Also need to setup the metric server 
+
+Install metric sersver 
+
+```yaml 
+check the yaml/metric-server.yaml 
+```
+
+Install CloudWatch Agent and Fluent-bit in EC2 Nodegroup 
+- replace region with your target region 
+- replace cluster-name with your cluster-name
+
+```yaml 
+check the yaml/cwagent-fluent-bit.yaml 
+```
+
+Install ADOT in Fargate profile: 
+
+- assume the CF exection role 
+- install iamserviceaccount by assuming CF exection role 
+- install ADOT agent by using the default role 
+
+To assume CF exection role 
+
+```bash 
+aws sts assume-role --role-arn 'arn:aws:xxx' --role-session-name eks 
+```
+
+Then update the ~/.aws/credentials with recevied credentials, then run the below bash script 
+
+```bash 
+#!/bin/bash
+CLUSTER_NAME=EksClusterLevel1
+REGION=ap-southeast-1
+SERVICE_ACCOUNT_NAMESPACE=fargate-container-insights
+SERVICE_ACCOUNT_NAME=adot-collector
+SERVICE_ACCOUNT_IAM_ROLE=EKS-Fargate-ADOT-ServiceAccount-Role
+SERVICE_ACCOUNT_IAM_POLICY=arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+eksctl utils associate-iam-oidc-provider \
+--cluster=$CLUSTER_NAME \
+--approve
+
+eksctl create iamserviceaccount \
+--cluster=$CLUSTER_NAME \
+--region=$REGION \
+--name=$SERVICE_ACCOUNT_NAME \
+--namespace=$SERVICE_ACCOUNT_NAMESPACE \
+--role-name=$SERVICE_ACCOUNT_IAM_ROLE \
+--attach-policy-arn=$SERVICE_ACCOUNT_IAM_POLICY \
+--approve
+```
+
+After created the iamserviceaccount, use the default role to run below command 
+
+```bash 
+ClusterName=EksClusterLevel1
+REGION=ap-southeast-1
+curl https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main/deployment-template/eks/otel-fargate-container-insights.yaml | sed 's/YOUR-EKS-CLUSTER-NAME/'${ClusterName}'/;s/us-east-1/'${Region}'/' | kubectl apply -f - 
+```
+
 ## Troubleshooting
 
 Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
