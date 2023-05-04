@@ -383,10 +383,102 @@ data:
         - system:nodes
 ```
 
+Using eksctl as recommended by aws docs
+
+```bash
+eksctl delete iamidentitymapping \
+--region=$Region \
+--cluster=$ClusterName \
+--arn=$Role \
+```
+
 Update the kube config
 
 ```bash
 aws eks update-kubeconfig --name $ClusterName --role-arn $ROLE
+```
+
+## AutoScaler
+
+Install the AutoScaler, for simple demo
+
+- Update role for ec2 node, so it can scale the autoscaling group
+- More secure way is to use service account
+- Install AutoScaler yaml by kubectl
+- Install AutoScaler by reading yaml and add to the cluster by CDK
+
+Update role for ec2 node to work with auto-scaling group
+
+```ts
+nodeRole.addToPolicy(
+  new aws_iam.PolicyStatement({
+    effect: aws_iam.Effect.ALLOW,
+    actions: [
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeTags",
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "ec2:DescribeLaunchTemplateVersions",
+    ],
+    resources: ["*"],
+  })
+);
+```
+
+Optionally, update autoscaling tags
+
+```ts
+props.nodeGroups.forEach((element) => {
+  new Tag("k8s.io/cluster-autoscaler/" + props.cluster.clusterName, "owned", {
+    applyToLaunchedInstances: true,
+  });
+
+  new Tag("k8s.io/cluster-autoscaler/enabled", "true", {
+    applyToLaunchedInstances: true,
+  });
+  policy.attachToRole(element.role);
+});
+```
+
+Install AutoScaler by kubectl as normal
+
+```bash
+
+```
+
+In case of CDK Construct level 2, it is possible to deploy the AutoScaler yaml by adding manifest to the cluster
+
+```ts
+readYamlFile(
+  path.join(__dirname, "./../yaml/cluster-autoscaler-autodiscover.yaml"),
+  cluster
+);
+```
+
+Add the AutoScaler to cluster using CDK
+
+```ts
+const autoScaler = new AutoScalerHemlStack(app, "AutoScalerHemlStack", {
+  cluster: eks.cluster,
+  nodeGroups: eks.nodeGroups,
+});
+autoScaler.addDependency(eks);
+```
+
+For load test, prepare a few things
+
+- Update the cdk8s-app/dist/deployemt.yaml to max 1000 pods
+- Update the Nodegroup with max 20 instances
+- Artillery load test with 500 threads
+- Check autoscaling console to the activity
+
+```bash
+artillery quick --num 10000 --count 100 "http://$ELB_ENDPOINT"
+kubect get hpa --watch
+kubect top pod -n default
+kubect top node
 ```
 
 ## Observability
