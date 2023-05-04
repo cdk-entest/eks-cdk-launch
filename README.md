@@ -442,10 +442,16 @@ props.nodeGroups.forEach((element) => {
 });
 ```
 
-Install AutoScaler by kubectl as normal
+Install AutoScaler by kubectl. Download the yaml and replace YOUR CLUSTER NAME with the cluster name Optionall, use affinity to launch this AutoScaler to the EC2 nodegroup only, no Faragte profile.
 
 ```bash
+curl -O https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+```
 
+Install AutoScaler using kubectl
+
+```bash
+kubect apply -f cluster-autoscaler-autodiscover.yaml
 ```
 
 In case of CDK Construct level 2, it is possible to deploy the AutoScaler yaml by adding manifest to the cluster
