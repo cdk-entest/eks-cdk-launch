@@ -400,12 +400,31 @@ aws eks update-kubeconfig --name $ClusterName --role-arn $ROLE
 
 ## AutoScaler
 
+How scale up work?
+
+- It checkes any unscheduled pods every 10 seconds (scan-interval)
+- Change size (desired size) of the nodegroup of auto-scaling group
+- Launch new nodes using templates
+
+How scale down group? CA check for unneeded ndoes
+
+- Every 10 seconds, if no scale up, CA checks which nodes are unneeded by some conditions (CPU, Mem)
+- All pods running on the node can be moved to other nodes
+- If a node is unneeded for more than 10 minutes, it will be terminated
+
 Install the AutoScaler, for simple demo
 
 - Update role for ec2 node, so it can scale the autoscaling group
 - More secure way is to use service account
 - Install AutoScaler yaml by kubectl
 - Install AutoScaler by reading yaml and add to the cluster by CDK
+
+There are some important parameters
+
+- [AutoScaler reaction time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time)
+- [scan-interval](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time) 10 seconds by default which check for unscheduled pods via API servers
+- [--scale-down-unneeded-time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time)
+- [--max-node-provision-time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time) how log requested nodes to appear, within 15 minutes
 
 Update role for ec2 node to work with auto-scaling group
 
@@ -485,6 +504,12 @@ artillery quick --num 10000 --count 100 "http://$ELB_ENDPOINT"
 kubect get hpa --watch
 kubect top pod -n default
 kubect top node
+```
+
+Monitor logs of the AutoScaler
+
+```bash
+kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 ```
 
 ## Observability
@@ -602,3 +627,5 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - [eksctl Service Account](https://aws.amazon.com/blogs/containers/introducing-amazon-cloudwatch-container-insights-for-amazon-eks-fargate-using-aws-distro-for-opentelemetry/)
 
 - [Fargate Profile CPU and Mem](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html)
+
+- [AutoScaler reaction time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time)
