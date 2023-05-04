@@ -117,6 +117,25 @@ export class EksClusterStack extends Stack {
       )
     );
 
+    // add inline policy to work with auto-scaling group
+    nodeRole.addToPolicy(
+      new aws_iam.PolicyStatement({
+        effect: aws_iam.Effect.ALLOW,
+        actions: [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeLaunchConfigurations",
+          "autoscaling:DescribeTags",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    // optional: update auto-scaling group tags
+
     // aws managed nodegroup
     const nodegroup = new aws_eks.CfnNodegroup(
       this,
@@ -141,7 +160,7 @@ export class EksClusterStack extends Stack {
         // scaling configuration
         scalingConfig: {
           desiredSize: 2,
-          maxSize: 5,
+          maxSize: 21,
           minSize: 1,
         },
         // update configuration rolling update
