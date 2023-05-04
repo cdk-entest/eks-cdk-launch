@@ -492,6 +492,16 @@ const autoScaler = new AutoScalerHemlStack(app, "AutoScalerHemlStack", {
 autoScaler.addDependency(eks);
 ```
 
+Also update the scaling configuration of the nodegroup
+
+```ts
+  scalingConfig: {
+          desiredSize: 2,
+          maxSize: 22,
+          minSize: 1,
+        },
+```
+
 For load test, prepare a few things
 
 - Update the cdk8s-app/dist/deployemt.yaml to max 1000 pods
