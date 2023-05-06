@@ -524,7 +524,27 @@ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 
 ## Observability
 
-As the cluster using both EC2 nodegroup and Faragate profile, we need to setup both CloudWatch Agent and Fluent-bit for EC2 nodegroup and ADOT for Faragate profile. Also need to setup the metric server
+There are serveral methods
+
+- Applications send logs
+- Sidecar container pattern
+- Node agent (the most common method)
+
+Depending on EC2 or Fargate, there are different tools
+
+- Container Insights: CloudWatch Agent and Fluent Bit installed per node
+- ADOT (AWS Distro for OpenTelemetry) works for both EC2 and Fargate
+
+As the cluster using both EC2 nodegroup and Faragate profile
+
+- Setup CloudWatch Agent and Fluent-bit for EC2 nodegroup
+- Setup ADOT for Faragate profile
+- Also need to setup the metric server
+
+How CloudWatch Agent and Fluent Bit work?
+
+- CloudWatch Agent installed per EC2 Node and collect metrics, then send to performance log group in CW
+- Fluent Bit send logs to log groups: host, application, dataplane
 
 Install metric sersver
 
@@ -540,6 +560,19 @@ Install CloudWatch Agent and Fluent-bit in EC2 Nodegroup
 ```yaml
 check the yaml/cwagent-fluent-bit.yaml
 ```
+
+How ADOT works in Fargate?
+
+Quoted
+
+```
+The kubelet on a worker node in a Kubernetes cluster exposes resource metrics such as CPU, memory, disk, and network usage at the /metrics/cadvisor endpoint. However, in EKS Fargate networking architecture, a pod is not allowed to directly reach the kubelet on that worker node. Hence, the ADOT Collector calls the Kubernetes API Server to proxy the connection to the kubelet on a worker node, and collect kubelet’s cAdvisor metrics for workloads on that node.
+
+```
+
+- An ADOT Collector is installed in a Fargate box
+- The ADOT call the API server for metrics
+- The API server proxy to Kuberlete in each Fargate Box
 
 Install ADOT in Fargate profile:
 
