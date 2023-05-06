@@ -522,7 +522,7 @@ Monitor logs of the AutoScaler
 kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 ```
 
-## Observability
+## Observability for EKS EC2
 
 There are serveral methods
 
@@ -560,6 +560,8 @@ Install CloudWatch Agent and Fluent-bit in EC2 Nodegroup
 ```yaml
 check the yaml/cwagent-fluent-bit.yaml
 ```
+
+## Observability for EKS Fargate
 
 How ADOT works in Fargate?
 
