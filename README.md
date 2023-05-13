@@ -327,7 +327,7 @@ kubect get nodes --show-labels
 Kubernetes Role to setup permissions or what actions are allowed
 
 ```yaml
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.Kubernetes.io/v1
 kind: Role
 metadata:
   creationTimestamp: null
@@ -342,7 +342,7 @@ rules:
 Kubernetes RoleBinding to bind an identity (group or user) with the Role
 
 ```yaml
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.Kubernetes.io/v1
 kind: RoleBinding
 metadata:
   creationTimestamp: null
@@ -351,11 +351,11 @@ metadata:
 subjects:
   - kind: User
     name: developer
-    apiGroup: rbac.authorization.k8s.io
+    apiGroup: rbac.authorization.Kubernetes.io
 roleRef:
   kind: Role
   name: dev-role
-  apiGroup: rbac.authorization.k8s.io
+  apiGroup: rbac.authorization.Kubernetes.io
 ```
 
 Update the aws-auth configmap
@@ -396,6 +396,103 @@ Update the kube config
 
 ```bash
 aws eks update-kubeconfig --name $ClusterName --role-arn $ROLE
+```
+
+## Service Account
+
+Quoted from [docs](https://docs.aws.amazon.com/eks/latest/userguide/service-accounts.html): _A Kubernetes service account provides an identity for processes that run in a Pod_. There are some use cases to understand
+
+- A process in a pod want to access data in S3, DynamoDB
+- ALB Controller create a ALB controller in AWS
+- Amazon EBS CSI Drive add-on creates presistent storate (EBS volumnes) in AWS
+- AutoScaler trigger Auto Scaling Group in AWS
+
+Essential components when setting up a service account for Kubernetes. In short, a service account in Kubernetes need to assume an IAM role to access to AWS services.
+
+- Identity: the EKS cluster should have an OpenID Connect provider
+- Trust Policy: the process should be able to assume a role in AWS IAM
+- ServiceAccount: create a service account in Kubernetes
+- ServiceAccount: annotate the service account with the IAM role arn
+
+Let consider two example
+
+- Example 1: setup permissions for the EBS CSI Driver add-on
+- Example 2: setup permissions for ADOT-Collector
+
+In example 1, the driver need to create EBS volumnes in AWS services.Step 1. Create a service account in Kubernetes
+
+Create a service account and annotation by yaml.In case of the EBS CSI add-on, the service account **ebs-csi-controller-sa** already created when installing the add-on.
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::$ACCOUNT:role/AmazonEKS_EBS_CSI_Driver
+  creationTimestamp: "2023-05-13T06:11:46Z"
+  labels:
+    app.kubernetes.io/component: csi-driver
+    app.kubernetes.io/managed-by: EKS
+    app.kubernetes.io/name: aws-ebs-csi-driver
+    app.kubernetes.io/version: 1.18.0
+  name: ebs-csi-controller-sa
+  namespace: kube-system
+  resourceVersion: "66136"
+```
+
+Step 2. Create an IAM role to be assumed by the service account
+
+For example, create a role for the EBS CSI add-on. First, create a trust policy to allow the ID (OpenID Connect) assume the role
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::$ACCOUNT:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/$OIDC_ID"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.ek$REGION.amazonaws.com/id/$OIDC_ID:aud": "sts.amazonaws.com",
+          "oidc.ek$REGION.amazonaws.com/id/$OIDC_ID:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+        }
+      }
+    }
+  ]
+}
+```
+
+Second, add policies to the role, for example AWS managed **AmazonEBSCSIDriverPolicy** policy to the role.
+
+In example 2, the collector running in Faragte need permissions to send logs to AWS CloudWatch. In this case, it is possilbe to create a service account by eksctl. Under the hoold, eksctl will create a Lambda function which call kubernetes API sersver. The eksctl do two things:
+
+- Create a service account and annotation in Kubernetes
+- Create IAM policy and Role in AWS
+
+```bash
+#!/bin/bash
+CLUSTER_NAME=EksClusterLevel1
+REGION=ap-southeast-1
+SERVICE_ACCOUNT_NAMESPACE=fargate-container-insights
+SERVICE_ACCOUNT_NAME=adot-collector
+SERVICE_ACCOUNT_IAM_ROLE=EKS-Fargate-ADOT-ServiceAccount-Role
+SERVICE_ACCOUNT_IAM_POLICY=arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+eksctl utils associate-iam-oidc-provider \
+--cluster=$CLUSTER_NAME \
+--approve
+
+eksctl create iamserviceaccount \
+--cluster=$CLUSTER_NAME \
+--region=$REGION \
+--name=$SERVICE_ACCOUNT_NAME \
+--namespace=$SERVICE_ACCOUNT_NAMESPACE \
+--role-name=$SERVICE_ACCOUNT_IAM_ROLE \
+--attach-policy-arn=$SERVICE_ACCOUNT_IAM_POLICY \
+--approve
 ```
 
 ## AutoScaler
@@ -450,11 +547,15 @@ Optionally, update autoscaling tags
 
 ```ts
 props.nodeGroups.forEach((element) => {
-  new Tag("k8s.io/cluster-autoscaler/" + props.cluster.clusterName, "owned", {
-    applyToLaunchedInstances: true,
-  });
+  new Tag(
+    "Kubernetes.io/cluster-autoscaler/" + props.cluster.clusterName,
+    "owned",
+    {
+      applyToLaunchedInstances: true,
+    }
+  );
 
-  new Tag("k8s.io/cluster-autoscaler/enabled", "true", {
+  new Tag("Kubernetes.io/cluster-autoscaler/enabled", "true", {
     applyToLaunchedInstances: true,
   });
   policy.attachToRole(element.role);
@@ -504,7 +605,7 @@ Also update the scaling configuration of the nodegroup
 
 For load test, prepare a few things
 
-- Update the cdk8s-app/dist/deployemt.yaml to max 1000 pods
+- Update the cdKubernetes-app/dist/deployemt.yaml to max 1000 pods
 - Update the Nodegroup with max 20 instances
 - Artillery load test with 500 threads
 - Check autoscaling console to the activity
@@ -667,7 +768,7 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 
 - [Fluent-bit EKS Fargate](https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/)
 
-- [Node Selector Fluent-bit not in Fargate](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni-cn.yaml#L100)
+- [Node Selector Fluent-bit not in Fargate](https://github.com/aws/amazon-vpc-cni-Kubernetes/blob/master/config/master/aws-Kubernetes-cni-cn.yaml#L100)
 
 - [eksctl Service Account](https://aws.amazon.com/blogs/containers/introducing-amazon-cloudwatch-container-insights-for-amazon-eks-fargate-using-aws-distro-for-opentelemetry/)
 
