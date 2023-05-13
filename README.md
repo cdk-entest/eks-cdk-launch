@@ -409,7 +409,8 @@ Quoted from [docs](https://docs.aws.amazon.com/eks/latest/userguide/service-acco
 
 Essential components when setting up a service account for Kubernetes. In short, a service account in Kubernetes need to assume an IAM role to access to AWS services.
 
-- Identity: the EKS cluster should have an OpenID Connect provider
+- OIDC Identity: the EKS cluster should have an OpenID Connect provider
+- IAM Identity Provider
 - Trust Policy: the process should be able to assume a role in AWS IAM
 - ServiceAccount: create a service account in Kubernetes
 - ServiceAccount: annotate the service account with the IAM role arn
@@ -419,9 +420,13 @@ Let consider two example
 - Example 1: setup permissions for the EBS CSI Driver add-on
 - Example 2: setup permissions for ADOT-Collector
 
-In example 1, the driver need to create EBS volumnes in AWS services.Step 1. Create a service account in Kubernetes
+In example 1, the driver need to create EBS volumnes in AWS services.
 
-Create a service account and annotation by yaml.In case of the EBS CSI add-on, the service account **ebs-csi-controller-sa** already created when installing the add-on.
+- Step 1. Create a service account in Kubernetes
+- Step 2. Create Identity Provider in AWS IAM
+- Step 3. Create an IAM role in AWS IAM
+
+Step 1. Create a service account in Kubernetes. In this case, the service account **ebs-csi-controller-sa** already created when installing the add-on.
 
 ```yaml
 apiVersion: v1
@@ -440,7 +445,15 @@ metadata:
   resourceVersion: "66136"
 ```
 
-Step 2. Create an IAM role to be assumed by the service account
+Step 2. Create Identity Provider in AWS IAM
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+--cluster=$CLUSTER_NAME \
+--approve
+```
+
+Step 3. Create an IAM role to be assumed by the service account
 
 For example, create a role for the EBS CSI add-on. First, create a trust policy to allow the ID (OpenID Connect) assume the role
 
@@ -467,10 +480,13 @@ For example, create a role for the EBS CSI add-on. First, create a trust policy 
 
 Second, add policies to the role, for example AWS managed **AmazonEBSCSIDriverPolicy** policy to the role.
 
-In example 2, the collector running in Faragte need permissions to send logs to AWS CloudWatch. In this case, it is possilbe to create a service account by eksctl. Under the hoold, eksctl will create a Lambda function which call kubernetes API sersver. The eksctl do two things:
+In example 2, the collector running in Faragte need permissions to send logs to AWS CloudWatch.
 
-- Create a service account and annotation in Kubernetes
-- Create IAM policy and Role in AWS
+- Step 1. Create service account in Kubernetes
+- Step 2. Create Identity Provider in AWS IAM
+- Step 3. Create a Role in AWS IAM
+
+By using eksctl, three step can be done in two commands below. Under the hoold, eksctl will create a Lambda function which call kubernetes API server.
 
 ```bash
 #!/bin/bash
