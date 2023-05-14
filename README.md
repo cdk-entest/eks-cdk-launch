@@ -772,7 +772,7 @@ helm install my-prometheus prometheus-community/prometheus -f ./test/prometheus_
 
 There are two methods for metric collectioin configuration
 
-- Via ServiceMonitor and PodMonitor in Prometheus Operator
+- Via ServiceMonitor and PodMonitor in Prometheus Operator [HERE](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md)
 - Via scrape_configs in prometheus.yaml [HERE](https://www.cncf.io/blog/2021/10/25/prometheus-definitive-guide-part-iii-prometheus-operator/)
 
 Forward port to see Prometheus server UI
