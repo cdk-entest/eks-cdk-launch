@@ -748,6 +748,8 @@ This section walk through steps to step up Prometheus
 
 ### Section 1. Components of Prometheus
 
+Check [docs](https://prometheus.io/docs/introduction/overview/)
+
 ### Section 2. Setup Prometheus
 
 There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
