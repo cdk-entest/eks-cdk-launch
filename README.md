@@ -746,6 +746,10 @@ This section walk through steps to step up Prometheus
 - Setup the EBS CSI Driver add-on with service account [here](https://cdk.entest.io/eks/service-account)
 - Setup Prometheus and Grafana using helm chart
 
+### Section 1. Components of Prometheus
+
+### Section 2. Setup Prometheus
+
 There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
 
 - [Prometheus-community helm chart ](https://github.com/prometheus-community/helm-charts/tree/main)
@@ -786,6 +790,8 @@ First query with Prometheus
 ```sql
 sum by (namespace) (kube_pod_info)
 ```
+
+### Section 3. Prometheus and Granfana
 
 To install both Prometheus and Grafana, choose another release
 
