@@ -744,7 +744,7 @@ This section walk through steps to step up Prometheus
 
 - Prometheus components and methods to setup
 - Setup the EBS CSI Driver add-on with service account [here](https://cdk.entest.io/eks/service-account)
-- Setup Promethues using helm chart
+- Setup Prometheus and Grafana using helm chart
 
 There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
 
@@ -786,6 +786,31 @@ First query with Prometheus
 ```sql
 sum by (namespace) (kube_pod_info)
 ```
+
+To install both Prometheus and Grafana, choose another release
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/kube-prometheus-stack -f ./test/prometheus_values.yaml
+```
+
+Then port-forward to login the Grafana UI
+
+```bash
+kubectl port-forward deploy/prometheus-grafana 8081:3000 -n prometheus
+```
+
+Find the password to login Grafana
+
+```bash
+kubectl get secret --namespace prometheus prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+Login Grafana UI, and go to the menu button, find
+
+- Dashboard and select Kubernetes/Compute Resources/ Pod and see
+- Explore, select code, and query with PromQL
 
 ## Troubleshooting
 
@@ -840,3 +865,5 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - [Fargate Profile CPU and Mem](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html)
 
 - [AutoScaler reaction time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time)
+
+- [Prometheus Operator Blog](https://blog.container-solutions.com/prometheus-operator-beginners-guide)
