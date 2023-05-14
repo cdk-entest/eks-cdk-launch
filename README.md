@@ -750,6 +750,12 @@ This section walk through steps to step up Prometheus
 
 Check [docs](https://prometheus.io/docs/introduction/overview/)
 
+- Prometheus server
+- Alert manager
+- Pushgateway
+- Node exporter
+- PromQL, PrometheusUI, Grafana, API Clients
+
 ### Section 2. Setup Prometheus
 
 There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
