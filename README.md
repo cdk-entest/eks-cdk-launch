@@ -738,6 +738,44 @@ REGION=ap-southeast-1
 curl https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main/deployment-template/eks/otel-fargate-container-insights.yaml | sed 's/YOUR-EKS-CLUSTER-NAME/'${ClusterName}'/;s/us-east-1/'${Region}'/' | kubectl apply -f -
 ```
 
+## Prometheus
+
+This section walk through steps to step up Prometheus
+
+- Prometheus components and methods to setup
+- Setup the EBS CSI Driver add-on with service account
+- Setup Promethues using helm chart
+
+There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
+
+- [Prometheus-community helm chart ](https://github.com/prometheus-community/helm-charts/tree/main)
+- [Kube-prometheus ](https://github.com/prometheus-operator/kube-prometheus)
+- [Prometheus operator](https://github.com/prometheus-operator)
+
+The easiest way is to use Prometheus community helm chart. First, add the repository
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+
+List charts from the repository
+
+```bash
+helm search repo prometheus-community
+```
+
+Then install the Prometheus community helm chart with custom configuration
+
+```bash
+helm install my-prometheus prometheus-community/prometheus -f ./test/prometheus_values.yaml
+```
+
+Forward port to see Prometheus server UI
+
+```bash
+kubectl port-forward deploy/prometheus-server 8080:9090 -n prometheus
+```
+
 ## Troubleshooting
 
 Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
