@@ -743,7 +743,7 @@ curl https://raw.githubusercontent.com/aws-observability/aws-otel-collector/main
 This section walk through steps to step up Prometheus
 
 - Prometheus components and methods to setup
-- Setup the EBS CSI Driver add-on with service account
+- Setup the EBS CSI Driver add-on with service account [here](https://cdk.entest.io/eks/service-account)
 - Setup Promethues using helm chart
 
 There are several ways to setup monitoring with Prometheus, please read [docs](https://prometheus-operator.dev/docs/user-guides/getting-started/).
@@ -770,10 +770,21 @@ Then install the Prometheus community helm chart with custom configuration
 helm install my-prometheus prometheus-community/prometheus -f ./test/prometheus_values.yaml
 ```
 
+There are two methods for metric collectioin configuration
+
+- Via ServiceMonitor and PodMonitor in Prometheus Operator
+- Via scrape_configs in prometheus.yaml [HERE](https://www.cncf.io/blog/2021/10/25/prometheus-definitive-guide-part-iii-prometheus-operator/)
+
 Forward port to see Prometheus server UI
 
 ```bash
 kubectl port-forward deploy/prometheus-server 8080:9090 -n prometheus
+```
+
+First query with Prometheus
+
+```sql
+sum by (namespace) (kube_pod_info)
 ```
 
 ## Troubleshooting
