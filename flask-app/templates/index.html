@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conquering Responsive Layouts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-top: 0;
+        }
+
+        .section-title {
+            color: #87629A;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            text-transform: uppercase;
+            color: #23424A;
+            font-weight: 900;
+            background-color: #38CFD9;
+            padding: .75em 2em;
+            border-radius: 100px;
+        }
+
+        .btn:hover,
+        .btn:focus {
+            opacity: .75;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .col {
+            /* these are now flex items */
+            width: 100%;
+        }
+
+        .col+.col {
+            margin-left: 30px;
+        }
+
+
+        header {
+            background: #136c72;
+            padding: .5em 0;
+        }
+
+        .nav__item {
+            margin-right: 1em;
+        }
+
+        .nav__list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav__link {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            ;
+        }
+
+        .nav__link--button {
+            background: #fff;
+            color: #136c72;
+            padding: .25em 1em;
+            border-radius: 10em;
+        }
+
+        .nav__link:hover {
+            opacity: .75;
+        }
+
+
+        .hero {
+            padding: 100px 0;
+            background-color: #23424A;
+            color: #FFF;
+        }
+
+        .hero__text {
+            width: 62%;
+        }
+
+        .hero__img {
+            width: 32%;
+            align-self: flex-start;
+        }
+
+        .hero p {
+            margin-bottom: 3em;
+        }
+
+        .main {
+            margin-top: 3em;
+        }
+
+        .primary-content {
+            width: 62%;
+        }
+
+        .sidebar {
+            width: 32%;
+            padding: 1em;
+            text-align: center;
+            color: #fff;
+            background-color: #136c72;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1100px;
+            margin: 0 auto;">
+            <a href="#">
+                <img src="{{url_for('static', filename='logo.svg')}}" style="margin-right: 1em;">
+            </a>
+            <nav style="
+                width: 100%;
+                justify-content: space-between; 
+                align-items: center;
+                ">
+                <ul style="
+                    display: flex; 
+                    margin: 0; 
+                    padding: 0; 
+                    list-style: none;">
+                    <li class="nav__item"><a href="#" class="nav__link">Home</a></li>
+                    <li class="nav__item"><a href="#" class="nav__link">About</a></li>
+                    <li class="nav__item"><a href="#" class="nav__link">Contact</a></li>
+                    <li style="
+                        margin-left: auto; 
+                        margin-right: 1em;">
+                        <a href="#" class="nav__link">Sign In</a>
+                    </li>
+                    <li class="nav__item"><a href="#" class="nav__link nav__link--button">Sign up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container row">
+            <div class="hero__text">
+                <h1>Responsive layouts don’t have to be a struggle</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua. Ut enim ad minim veniam.</p>
+                <a href="#" class="btn">I want to learn</a>
+            </div>
+            <img src="{{url_for('static', filename='hero.jpg')}}" alt="UX design sketches" class="hero__img">
+        </div>
+    </section>
+
+    <main class="main container row">
+        <section class="primary-content">
+            <h2 class="section-title">Quality designs made custom, on demand, just for you</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam. Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam. Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+        </section>
+        <aside class="sidebar">
+            <h2 class="sidebar-title">Cheap</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam.</p>
+
+            <h2 class="sidebar-title">Quick</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam.</p>
+
+            <h2 class="sidebar-title">Quality</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam.</p>
+        </aside>
+    </main>
+
+
+
+</body>
+
+</html>
