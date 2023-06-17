@@ -828,6 +828,33 @@ Login Grafana UI, and go to the menu button, find
 
 ## Troubleshooting
 
+- cloudformation execution role
+- kubectl config update
+
+After cdk bootstrap, it is recommended to update the trust policy of the cloudformation execution role it can be assumed by the role attached to dev machine.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:sts::$ACCOUNT_ID:assumed-role/TeamRole/MasterKey"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
 Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
 
 ```bash

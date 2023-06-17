@@ -1,4 +1,11 @@
-import { Stack, StackProps, aws_ec2, aws_eks, aws_iam } from "aws-cdk-lib";
+import {
+  CfnResource,
+  Stack,
+  StackProps,
+  aws_ec2,
+  aws_eks,
+  aws_iam,
+} from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 interface EksClusterProps extends StackProps {
@@ -160,7 +167,7 @@ export class EksClusterStack extends Stack {
         // scaling configuration
         scalingConfig: {
           desiredSize: 2,
-          maxSize: 21,
+          maxSize: 22,
           minSize: 1,
         },
         // update configuration rolling update
@@ -254,6 +261,7 @@ export class EksClusterStack extends Stack {
       }
     );
     // dependencies
+    cluster.addDependency(role.node.defaultChild as CfnResource);
     nodegroup.addDependency(cluster);
     monitorFargateProfile.addDependency(cluster);
     appFargateProfile.addDependency(cluster);
