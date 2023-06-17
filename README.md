@@ -881,3 +881,11 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - [AutoScaler reaction time](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-modify-cluster-autoscaler-reaction-time)
 
 - [Prometheus Operator Blog](https://blog.container-solutions.com/prometheus-operator-beginners-guide)
+
+- [Service HTTPS](https://repost.aws/knowledge-center/eks-apps-tls-to-activate-https)
+
+## Jupyter Notebook
+
+```
+http://a2392d969c12f4e54ad1339d701fff9e-1597214113.ap-southeast-1.elb.amazonaws.com/lab?token=353fa7be714cfe810cf60a37be95488000ceb9398f111444
+```
