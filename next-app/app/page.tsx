@@ -29,7 +29,7 @@ export default function Home() {
             return (
               <div key={book.order}>
                 <div className="ml-4 bg-white p-3 dark:bg-slate-900 dark:text-white">
-                  <h4 className="font-bold mb-8">Data Engineering with AWS</h4>
+                  <h4 className="font-bold mb-8">{book.title}</h4>
                   <div>
                     <img
                       src={book.image}
@@ -37,16 +37,7 @@ export default function Home() {
                       alt="book-image"
                     />
                   </div>
-                  <p className="text-sm">
-                    This is a great book for understanding and implementing the
-                    lake house architecture to integrate your Data Lake with
-                    your warehouse. It shows you all the steps you need to
-                    orchestrate your data pipeline. From architecture,
-                    ingestion, and processing to running queries in your data
-                    warehouse, I really like the very hands-on approach that
-                    shows you how you can immediately implement the topics in
-                    your AWS account Andreas Kretz, CEO, Learn Data Engineering
-                  </p>
+                  <p className="text-sm">{book.description}</p>
                   <a
                     href="https://www.amazon.com/Data-Engineering-AWS-Gareth-Eagar/dp/1800560419/ref=sr_1_1?crid=28BFB3NXGTM9G&amp;keywords=data+engineering+with+aws&amp;qid=1682772617&amp;sprefix=data+engineering+with+aws%2Caps%2C485&amp;sr=8-1"
                     target="_blank"
