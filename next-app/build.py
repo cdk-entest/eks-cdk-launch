@@ -24,3 +24,6 @@ os.system(f"aws ecr create-repository --registry-id {ACCOUNT} --repository-name 
 
 # push image to ecr 
 os.system(f"sudo docker push {ACCOUNT}.dkr.ecr.{REGION}.amazonaws.com/next-app:latest")
+
+# run locally to test 
+os.system(f"sudo docker run -d -p 3000:3000 next-app:latest")
