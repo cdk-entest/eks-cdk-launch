@@ -17,13 +17,13 @@ export default function Home() {
           </ul>
         </nav>
       </div>
-      <div className="relative h-80 flex justify-center items-center dark:bg-slate-800 mb-5">
+      <div className="relative h-80 flex justify-center items-center dark:bg-slate-800">
         <div className="absolute w-full h-full bg-[url('https://d2cvlmmg8c0xrp.cloudfront.net/web-css/singapore.jpg')] bg-no-repeat bg-cover opacity-30"></div>
         <h1 className="z-10 text-3xl font-semibold dark:text-white">
           Web Development on AWS
         </h1>
       </div>
-      <div className="mx-auto max-w-5xl dark:bg-slate-800 px-5">
+      <div className="mx-auto max-w-5xl dark:bg-slate-800 px-5 mt-5 mb-5">
         <div className="grid grid-cols-2 gap-5">
           {books.map((book) => {
             return (
@@ -52,6 +52,11 @@ export default function Home() {
           })}
         </div>
       </div>
+      <footer className="dark:text-white dark:bg-slate-900 bg-gray-200 text-gray-00 py-4">
+        <div className="mx-auto max-w-5xl text-center text-base">
+          Copyright &copy; 2023 entest, Inc
+        </div>
+      </footer>
     </div>
   );
 }
