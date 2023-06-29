@@ -826,6 +826,151 @@ Login Grafana UI, and go to the menu button, find
 - Dashboard and select Kubernetes/Compute Resources/ Pod and see
 - Explore, select code, and query with PromQL
 
+## Docker Image
+
+Let build a docker image to deploy the next.js app. Here is the dockerfile
+
+```
+# layer 1
+FROM node:lts as dependencies
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install --frozen-lockfile
+
+# layer 2
+FROM node:lts as builder
+WORKDIR /app
+COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+RUN npm run build
+
+# layer 3
+FROM node:lts as runner
+WORKDIR /app
+ENV NODE_ENV production
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# run
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+The .dockerignore file
+
+```
+node_modules
+**/node_modules/
+.next
+.git
+```
+
+Let write a python script to automate build and push to aws ecr
+
+```py
+import os
+import subprocess
+
+# parameters
+REGION = "ap-southeast-1"
+ACCOUNT = "227135398356"
+
+# delete all docker images
+os.system("sudo docker system prune -a")
+
+# build next-app image
+os.system("sudo docker build -t next-app . ")
+
+#  aws ecr login
+os.system(f"aws ecr get-login-password --region {REGION} | sudo docker login --username AWS --password-stdin {ACCOUNT}.dkr.ecr.{REGION}.amazonaws.com")
+
+# get image id
+IMAGE_ID=os.popen("sudo docker images -q next-app:latest").read()
+
+# tag next-app image
+os.system(f"sudo docker tag {IMAGE_ID.strip()} {ACCOUNT}.dkr.ecr.{REGION}.amazonaws.com/next-app:latest")
+
+# create ecr repository
+os.system(f"aws ecr create-repository --registry-id {ACCOUNT} --repository-name next-app")
+
+# push image to ecr
+os.system(f"sudo docker push {ACCOUNT}.dkr.ecr.{REGION}.amazonaws.com/next-app:latest")
+
+# run locally to test
+os.system(f"sudo docker run -d -p 3000:3000 next-app:latest")
+```
+
+Run the container image locally to test it
+
+```bash
+sudo docker run -d -p 3000:3000 next-app:latest"
+```
+
+## Deploy in EKS
+
+Let deploy the next.js app in EKS, here is the yaml file. Please replace the ecr image path
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-app-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: next-app
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: next-app
+  template:
+    metadata:
+      labels:
+        app: next-app
+    spec:
+      containers:
+        - image: 227135398356.dkr.ecr.ap-southeast-1.amazonaws.com/next-app:latest
+          name: next-app
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 500m
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: next-app-hpa
+spec:
+  maxReplicas: 1000
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 5
+          type: Utilization
+      type: Resource
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: next-app-deployment
+```
+
 ## Troubleshooting
 
 - cloudformation execution role
