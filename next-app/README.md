@@ -295,3 +295,19 @@ spec:
     kind: Deployment
     name: next-app-deployment
 ```
+
+
+## Troubleshooting 
+
+Install docker for amazon linux 2023 
+
+```bash 
+sudo dnf install docker
+sudo yum install -y docker
+```
+
+And start the docker 
+
+```bash 
+systemctl start docker
+```

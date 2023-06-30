@@ -25,15 +25,15 @@ spec:
         app: next-app 
     spec:
       containers:
-        - image: 140149423990.dkr.ecr.ap-southeast-1.amazonaws.com/next-app:latest 
+        - image: 455595963207.dkr.ecr.ap-southeast-1.amazonaws.com/next-app:latest 
           name: next-app 
           ports:
             - containerPort: 3000 
           resources:
             limits:
-              cpu: 100m
+              cpu: 500m
             requests:
-              cpu: 100m
+              cpu: 500m
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
