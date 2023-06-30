@@ -311,3 +311,34 @@ And start the docker
 ```bash 
 systemctl start docker
 ```
+
+## Amazon Linux 2023 
+
+List repositories 
+
+```bash 
+sudo yum repolist all 
+```
+
+Add a repository 
+
+```bash 
+sudo yum-config-manager --add-repo http:/www.example.com/example.repo 
+```
+
+Then enable a repository 
+
+```bash 
+sudo yum-config-manager --enable repository
+```
+
+The repository here is the repository ID from the command list repository 
+
+
+## Reference 
+
+- [Redhat Repository](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/sec-managing_yum_repositories)
+
+- [Amazon Linux 2023 Add Repository](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/add-repositories.html)
+
+- [Amazon Linux 2023 Deterministic Upgrades](https://docs.aws.amazon.com/linux/al2023/ug/deterministic-upgrades.html)
