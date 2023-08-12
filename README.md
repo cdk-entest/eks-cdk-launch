@@ -1036,6 +1036,83 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - Ensure that your terminal can assume the CF execution role (trust policy)
 - Assume the CF execution role, aws configure before running eksctl
 
+## HTTPS Service
+
+It is possible to use a domain registered in another account and create Route53 record in this account.
+
+- Account A: register a domain from Route53
+- Account A: create a record in Route53 which route to LB in account B
+- Account B: create an ACM certificate and confirming by email
+- Account B: create a service.yaml with annotations specifing the certificate
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:ap-southeast-1:$ACCOUNT:certificate/$ID"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+    - port: 443
+      targetPort: 8080
+      name: https
+  selector:
+    app: flask-app
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - image: $ACCOUNT.dkr.ecr.ap-southeast-1.amazonaws.com/flask-app:latest
+          name: flask-app
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 100m
+            requests:
+              cpu: 100m
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flask-app-hpa
+spec:
+  maxReplicas: 1000
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 5
+          type: Utilization
+      type: Resource
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flask-app-deployment
+```
+
+TODO: image here
+
 ## Reference
 
 - [Setup Container Insights](https://repost.aws/knowledge-center/cloudwatch-container-insights-eks-fargate)
@@ -1055,6 +1132,8 @@ Since the EKS cluster is created by an CloudFormation execution role, we need to
 - [Prometheus Operator Blog](https://blog.container-solutions.com/prometheus-operator-beginners-guide)
 
 - [Service HTTPS](https://repost.aws/knowledge-center/eks-apps-tls-to-activate-https)
+
+- [EKS HTTPS](https://repost.aws/knowledge-center/terminate-https-traffic-eks-acm)
 
 ## Jupyter Notebook
 
