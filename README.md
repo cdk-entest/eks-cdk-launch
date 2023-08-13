@@ -971,71 +971,6 @@ spec:
     name: next-app-deployment
 ```
 
-## Troubleshooting
-
-- cloudformation execution role
-- kubectl config update
-
-After cdk bootstrap, it is recommended to update the trust policy of the cloudformation execution role it can be assumed by the role attached to dev machine.
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloudformation.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:sts::$ACCOUNT_ID:assumed-role/TeamRole/MasterKey"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
-
-```bash
-aws eks update-kubeconfig --name cluster-xxxxx --role-arn arn:aws:iam::112233445566:role/yyyyy
-```
-
-Make sure that the role which your terminal assuming has a trust relationship with the CF execution role
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloudformation.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::$ACCOUNT:role/TeamRole"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-Since the EKS cluster is created by an CloudFormation execution role, we need to take note
-
-- Update kube config with the role before running kubectl
-- Ensure that your terminal can assume the CF execution role (trust policy)
-- Assume the CF execution role, aws configure before running eksctl
-
 ## HTTPS Service
 
 It is possible to use a domain registered in another account and create Route53 record in this account.
@@ -1112,6 +1047,95 @@ spec:
 ```
 
 TODO: image here
+
+Inside cluster we can shell into a busy box and wget to clusterip of the service
+
+```bash
+kubectl run busybox --image=busybox --rm -it --command -- bin/sh
+```
+
+then wget the cluster ip
+
+```bash
+wget -O- http://10.100.24.166:80
+```
+
+describe a service
+
+```bash
+describe service book-app-service
+```
+
+## Troubleshooting
+
+- cloudformation execution role
+- kubectl config update
+
+After cdk bootstrap, it is recommended to update the trust policy of the cloudformation execution role it can be assumed by the role attached to dev machine.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:sts::$ACCOUNT_ID:assumed-role/TeamRole/MasterKey"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+Since the cluster created by CloudFormation, we need to run kube config update before can run kubectl from our terminal. Find the cloudformation execution role from aws console, then replace below role arn with the CF exection role.
+
+```bash
+aws eks update-kubeconfig --name cluster-xxxxx --role-arn arn:aws:iam::112233445566:role/yyyyy
+```
+
+Make sure that the role which your terminal assuming has a trust relationship with the CF execution role
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::$ACCOUNT:role/TeamRole"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+Since the EKS cluster is created by an CloudFormation execution role, we need to take note
+
+- Update kube config with the role before running kubectl
+- Ensure that your terminal can assume the CF execution role (trust policy)
+- Assume the CF execution role, aws configure before running eksctl
+
+Rolling update a deployment in Kubernetes
+
+```bash
+kubectl rollout restart deployment/flask-app-deployment
+```
 
 ## Reference
 
