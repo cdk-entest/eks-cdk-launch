@@ -4,7 +4,7 @@ metadata:
   name: book-app-service
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:392194582387:certificate/6c989e78-59e7-4064-b61d-d370f71a9442
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:$ACCOUNT_ID:certificate/xxx
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
 spec:
   ports:
@@ -33,7 +33,7 @@ spec:
         app: book-app
     spec:
       containers:
-        - image: 392194582387.dkr.ecr.ap-southeast-1.amazonaws.com/book-app:latest
+        - image: $ACCOUNT_ID.dkr.ecr.ap-southeast-1.amazonaws.com/book-app:latest
           name: book-app
           ports:
             - containerPort: 8080
