@@ -143,6 +143,15 @@ export class EksClusterStack extends Stack {
 
     // optional: update auto-scaling group tags
 
+    // access s3 and polly
+    nodeRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
+    );
+
+    nodeRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonPollyFullAccess")
+    );
+
     // aws managed nodegroup
     const nodegroup = new aws_eks.CfnNodegroup(
       this,
@@ -237,33 +246,34 @@ export class EksClusterStack extends Stack {
     );
 
     // fargate profile for monitor
-    const monitorFargateProfile = new aws_eks.CfnFargateProfile(
-      this,
-      "MonitorFargateProfile",
-      {
-        clusterName: cluster.name!,
-        podExecutionRoleArn: podRole.roleArn,
-        selectors: [
-          {
-            namespace: "fargate-container-insights",
-            labels: [],
-          },
-        ],
-        fargateProfileName: "monitor",
-        // default all private subnet in the vpc
-        subnets: subnets,
-        tags: [
-          {
-            key: "name",
-            value: "test",
-          },
-        ],
-      }
-    );
+    //    const monitorFargateProfile = new aws_eks.CfnFargateProfile(
+    //      this,
+    //      "MonitorFargateProfile",
+    //      {
+    //        clusterName: cluster.name!,
+    //        podExecutionRoleArn: podRole.roleArn,
+    //        selectors: [
+    //          {
+    //            namespace: "fargate-container-insights",
+    //            labels: [],
+    //          },
+    //        ],
+    //        fargateProfileName: "monitor",
+    //        // default all private subnet in the vpc
+    //        subnets: subnets,
+    //        tags: [
+    //          {
+    //            key: "name",
+    //            value: "test",
+    //          },
+    //        ],
+    //      }
+    //    );
+
     // dependencies
     cluster.addDependency(role.node.defaultChild as CfnResource);
     nodegroup.addDependency(cluster);
-    monitorFargateProfile.addDependency(cluster);
+    //    monitorFargateProfile.addDependency(cluster);
     appFargateProfile.addDependency(cluster);
   }
 }
