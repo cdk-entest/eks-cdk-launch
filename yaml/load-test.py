@@ -2,7 +2,7 @@ import time
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
-URL = "https://kube.entest.io"
+URL = "http://a0f0274869c784e28935453584f49be2-524602303.ap-southeast-1.elb.amazonaws.com"
 NO_CONCUR_REQUEST = 1000
 COUNT = 1
 

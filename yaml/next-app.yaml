@@ -2,33 +2,41 @@ apiVersion: v1
 kind: Service
 metadata:
   name: next-app-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:392194582387:certificate/52b853dd-45ae-479e-976d-8c2dfbe6cc31
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
 spec:
   ports:
     - port: 80
       targetPort: 3000
+      name: http
+    - port: 443
+      targetPort: 3000
+      name: https
   selector:
-    app: next-app 
+    app: next-app
   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: next-app-deployment 
+  name: next-app-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: next-app 
+      app: next-app
   template:
     metadata:
       labels:
-        app: next-app 
+        app: next-app
     spec:
       containers:
-        - image: 455595963207.dkr.ecr.ap-southeast-1.amazonaws.com/next-app:latest 
-          name: next-app 
+        - image: 392194582387.dkr.ecr.ap-southeast-1.amazonaws.com/next-app:latest
+          name: next-app
           ports:
-            - containerPort: 3000 
+            - containerPort: 3000
           resources:
             limits:
               cpu: 500m
@@ -38,18 +46,18 @@ spec:
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: next-app-hpa 
+  name: next-app-hpa
 spec:
   maxReplicas: 1000
   metrics:
     - resource:
         name: cpu
         target:
-          averageUtilization: 5
+          averageUtilization: 20
           type: Utilization
       type: Resource
   minReplicas: 2
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: next-app-deployment 
+    name: next-app-deployment

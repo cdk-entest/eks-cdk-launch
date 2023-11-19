@@ -1,0 +1,1 @@
+aws eks update-kubeconfig --name 	EksClusterLevel1 --role-arn arn:aws:iam::225459623179:role/cdk-hnb659fds-cfn-exec-role-225459623179-ap-southeast-1 

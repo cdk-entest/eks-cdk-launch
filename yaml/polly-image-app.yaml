@@ -1,53 +1,52 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: book-app-service
+  name: polly-image-app-service
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:575808125544:certificate/61d3f411-eba3-48dd-bb9a-fbea3481fc17
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:315305460736:certificate/1b66b634-0e5a-4371-9517-67b8d2863cf5
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
 spec:
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: 3000
       name: http
     - port: 443
-      targetPort: 8080
+      targetPort: 3000
       name: https
   selector:
-    app: book-app
+    app: polly-image-app
   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: book-app-deployment
+  name: polly-image-app-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: book-app
+      app: polly-image-app
   template:
     metadata:
       labels:
-        app: book-app
+        app: polly-image-app
     spec:
       containers:
-        - image: 575808125544.dkr.ecr.ap-southeast-1.amazonaws.com/book-app
-          name: book-app
+        - image: 315305460736.dkr.ecr.us-east-1.amazonaws.com/polly-image-app
+          name: polly-image-app
           ports:
-            - containerPort: 8080
+            - containerPort: 3000
           resources:
             limits:
-              cpu: 100m
+              cpu: 1000m
             requests:
-              cpu: 100m
+              cpu: 1000m
 ---
-apiVersion: autoscaling/v2
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: book-app-hpa
-  namespace: default
+  name: polly-image-app-hpa
 spec:
   maxReplicas: 1000
   metrics:
@@ -61,4 +60,4 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: book-app-deployment
+    name: polly-image-app-deployment

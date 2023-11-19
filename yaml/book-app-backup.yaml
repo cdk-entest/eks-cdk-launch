@@ -1,32 +1,40 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-app-service
+  name: book-app-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:575808125544:certificate/61d3f411-eba3-48dd-bb9a-fbea3481fc17
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
 spec:
   ports:
     - port: 80
       targetPort: 8080
+      name: http
+    - port: 443
+      targetPort: 8080
+      name: https
   selector:
-    app: flask-app 
+    app: book-app
   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-app-deployment 
+  name: book-app-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: flask-app 
+      app: book-app
   template:
     metadata:
       labels:
-        app: flask-app 
+        app: book-app
     spec:
       containers:
-        - image: 394599967678.dkr.ecr.ap-southeast-1.amazonaws.com/flask-app:latest 
-          name: flask-app 
+        - image: 575808125544.dkr.ecr.ap-southeast-1.amazonaws.com/book-app
+          name: book-app
           ports:
             - containerPort: 8080
           resources:
@@ -38,7 +46,8 @@ spec:
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: flask-app-hpa 
+  name: book-app-hpa
+  namespace: default
 spec:
   maxReplicas: 1000
   metrics:
@@ -52,4 +61,4 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: flask-app-deployment 
+    name: book-app-deployment
