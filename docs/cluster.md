@@ -662,8 +662,35 @@ kubectl logs --tail=100 -f book-app-deployment-74fbc9b7-vglgj
 
 ## Fargate Profile
 
-- Namespace
-- Labels
+- Namespace and Labels for pod selector
+- ALB controller and ingress ==> Next Module
+
+Here is a sample app which should be assigned to a fargate pod
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdk8s-deployment
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-cdk8s
+      environment: prod
+  template:
+    metadata:
+      labels:
+        app: hello-cdk8s
+        environment: prod
+    spec:
+      containers:
+        - image: paulbouwer/hello-kubernetes:1.7
+          name: hello-kubernetes
+          ports:
+            - containerPort: 8080
+```
 
 ## Reference
 
