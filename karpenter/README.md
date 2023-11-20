@@ -4,6 +4,15 @@ author: haimtran
 date: 19/11/2023
 ---
 
+## Introduction
+
+[GitHub](https://github.com/cdk-entest/eks-cdk-launch/tree/master/karpenter) this note shows how to setup Karpenter for Amazon EKS.
+
+- Service account for the Karpenter as a controller
+- Setup node role and controller role
+- Setup Karpenter provisioner
+- ttlSecondsAfterEmpty for scale in
+
 ## OIDC IAM Provider
 
 > Please setup the OIDC IAM Provider
