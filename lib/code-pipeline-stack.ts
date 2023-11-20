@@ -60,6 +60,14 @@ export class FluxPipeline extends Stack {
           buildImage: aws_codebuild.LinuxBuildImage.STANDARD_5_0,
           computeType: aws_codebuild.ComputeType.MEDIUM,
           environmentVariables: {
+            DOCKERHUB_USERNAME: {
+              value: "DOCKERHUB_USERNAME",
+              type: aws_codebuild.BuildEnvironmentVariableType.PARAMETER_STORE,
+            },
+            DOCKERHUB_PASS: {
+              value: "DOCKERHUB_PASS",
+              type: aws_codebuild.BuildEnvironmentVariableType.PARAMETER_STORE,
+            },
             ACCOUNT_ID: {
               value: this.account,
               type: aws_codebuild.BuildEnvironmentVariableType.PLAINTEXT,
@@ -79,10 +87,15 @@ export class FluxPipeline extends Stack {
           version: "0.2",
           phases: {
             install: {
-              commands: ["echo ${ACCOUNT_ID}", "echo ${REGION}"],
+              commands: [
+                "echo ${ACCOUNT_ID}",
+                "echo ${REGION}",
+                "echo ${DOCKERHUB_USERNAME}",
+              ],
             },
             pre_build: {
               commands: [
+                "docker login --username ${DOCKERHUB_USERNAME} --password ${DOCKERHUB_PASS}",
                 "export TAG_NAME=$(date +%s)",
                 "aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com",
               ],
