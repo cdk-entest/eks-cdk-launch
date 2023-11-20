@@ -692,6 +692,36 @@ spec:
             - containerPort: 8080
 ```
 
+## Some Concepts
+
+[**Managed NodeGroup**](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html)
+
+> Amazon EKS managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters...There are no additional costs to use Amazon EKS managed node groups, you only pay for the AWS resources you provision.
+
+[**Self Managed Node**](https://docs.aws.amazon.com/eks/latest/userguide/worker.html)
+
+> A cluster contains one or more Amazon EC2 nodes that Pods are scheduled on. Amazon EKS nodes run in your AWS account and connect to the control plane of your cluster through the cluster API server endpoint. You're billed for them based on Amazon EC2 prices. For more information
+
+[**Fargate Profile**](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html)
+
+> With Fargate, you don't have to provision, configure, or scale groups of virtual machines on your own to run containers. You also don't need to choose server types, decide when to scale your node groups, or optimize cluster packing.
+
+[**Tain and Affinity**](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+
+> Node selectors/affinity, based on node labels, enables pods to be assigned to a set of nodes (either as a preference or a hard requirement). Taints are the opposite — they allow a node to repel a set of pods.
+
+> Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints.
+
+[**Splot Instance**](https://aws.amazon.com/blogs/containers/seamlessly-migrate-workloads-from-eks-self-managed-node-group-to-eks-managed-node-groups/)
+
+> If Spot Instances are used with managed node groups, EKS handles the termination of Spot Instances gracefully. When Spot Instances receive a two-minute termination notice, EKS will reallocate the pods that are running to other active instances. This will avoid abrupt termination of pods when Spot Instances are terminated.
+
+[**Karpenter**](https://aws.amazon.com/blogs/containers/how-costar-uses-karpenter-to-optimize-their-amazon-eks-resources/)
+
+> CoStar needed a more efficient means of provisioning nodes for their diverse workload demands without the overhead of management of multiple node groups.
+
+>
+
 ## Reference
 
 - [STS VPC Endpoint for IAM Roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html)
@@ -706,8 +736,18 @@ spec:
 
 - [Fargate Profile](https://docs.aws.amazon.com/eks/latest/userguide/fargate-profile.html)
 
-- [Self Managed Group]()
+- [Self Managed Group](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html)
 
 - [GPU Node and Spot Node]()
 
 - [Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Observability-EKS-addon.html)
+
+- [Migrate Self-Managed to AWS Managed Node](https://aws.amazon.com/blogs/containers/seamlessly-migrate-workloads-from-eks-self-managed-node-group-to-eks-managed-node-groups/)
+
+- [Karpenter CoStar](https://aws.amazon.com/blogs/containers/how-costar-uses-karpenter-to-optimize-their-amazon-eks-resources/)
+
+- [Karpenter Spot Instance](https://aws.amazon.com/blogs/containers/using-amazon-ec2-spot-instances-with-karpenter/)
+
+- [Introducing to Karpender on Amazon EKS 2021](https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler/)
+
+- [Migrate Cluster AutoScaler to Karpenter](https://karpenter.sh/docs/getting-started/migrating-from-cas/)
