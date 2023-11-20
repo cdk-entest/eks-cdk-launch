@@ -1,0 +1,29 @@
+# This example provisioner will provision general purpose instances
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    # Include general purpose instance families
+    - key: karpenter.k8s.aws/instance-family
+      operator: In
+      values: [t3, c3, m3]
+    # Exclude small instance sizes
+    - key: karpenter.k8s.aws/instance-size
+      operator: In
+      values: [small, medium, large, 2xlarge]
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 30
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  instanceProfile: "eks-dcc5f320-53e6-b45f-8d4c-f736c0656449"
+  subnetSelector:
+    karpenter.sh/discovery: "demo" # replace with your cluster name
+  securityGroupSelector:
+    karpenter.sh/discovery: "demo" # replace with your cluster name
