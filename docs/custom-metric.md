@@ -14,8 +14,6 @@ date: 2022-13-08
 - Monitor ECR image
 - [Flask polly app](https://github.com/entest-hai/flask-polly-app)
 
-![flux](./../assets/flux.png)
-
 ## Install Flux
 
 Let install flux
@@ -33,7 +31,7 @@ flux check --pre
 Setup GitHub connection with Flux
 
 ```bash
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=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
 export GITHUB_USER=entest-hai
 ```
 
@@ -56,7 +54,7 @@ Example
 flux bootstrap github \
   --components-extra=image-reflector-controller,image-automation-controller \
   --owner=$GITHUB_USER \
-  --repository=eks-flux-demo-2 \
+  --repository=eks-flux-demo-1 \
   --branch=main \
   --path=clusters/EksClusterLevel1 \
   --read-write-key \
@@ -71,84 +69,50 @@ flux-image-updates => eks-flux-demo
 
 Add an yaml file such as an flask-app.yaml, please specify namespace
 
-<details>
-<summary>flask-app.yaml</summary>
-
 ```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: book-app-service
-  namespace: default
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:575808125544:certificate/61d3f411-eba3-48dd-bb9a-fbea3481fc17
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
-spec:
-  ports:
-    - port: 80
-      targetPort: 8080
-      name: http
-    - port: 443
-      targetPort: 8080
-      name: https
-  selector:
-    app: book-app
-  type: LoadBalancer
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: book-app-deployment
+  name: flask-app-deployment
   namespace: default
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: book-app
+      app: flask-app
   template:
     metadata:
       labels:
-        app: book-app
+        app: flask-app
     spec:
       containers:
-        - image: 575808125544.dkr.ecr.ap-southeast-1.amazonaws.com/flask-app:d813066a06b2933fd2d33c1223a97ce843633046-1700467645
-          name: book-app
+        - image: 392194582387.dkr.ecr.ap-southeast-1.amazonaws.com/flask-app:latest
+          name: flask-app
           ports:
             - containerPort: 8080
           resources:
             limits:
-              cpu: 1
+              cpu: 50m
             requests:
-              cpu: 1
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: book-app-hpa
-  namespace: default
-spec:
-  maxReplicas: 1000
-  metrics:
-    - resource:
-        name: cpu
-        target:
-          averageUtilization: 5
-          type: Utilization
-      type: Resource
-  minReplicas: 2
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: book-app-deployment
+              cpu: 50m
 ```
-
-</details>
 
 Then wait a minute or run
 
 ```bash
 flux reconcile kustomization flux-system --with-source
+```
+
+and
+
+```bash
+flux reconcile helmrelease prometheus-adapter -n monitoring-system
+```
+
+and
+
+```bash
+flux reconcile helmrelease metrics-server -n monitoring-system
 ```
 
 Check the update by flux
@@ -284,20 +248,6 @@ spec:
     strategy: Setters
 ```
 
-## Delete Source Git
-
-List sources git
-
-```bash
-flux get sources git
-```
-
-Then delete a source git
-
-```bash
-flux delete source git flux-system
-```
-
 ## Troubleshooting
 
 Check image tag of a deployment
@@ -324,6 +274,92 @@ Get all image of a namespace
 flux get images all --all-namespaces
 ```
 
+## HPA Customer Metric
+
+Exect into a busy box and test the service
+
+```bash
+ kubectl run test --image=busybox -it --rm --command -- /bin/sh
+```
+
+and call the service
+
+```bash
+wget -O- http://podinfo.demo-metric
+```
+
+Install and run load test with hey
+
+```bash
+hey -z 10m -c 5 -q 5 -disable-keepalive http://podinfo.demo-metric
+```
+
+Watch HPA result
+
+```bash
+watch kubectl -n demo get hpa
+```
+
+Describe hpa to see result of scaling hpa
+
+```bash
+ kubectl -n demo-metric describe hpa podinfo
+```
+
+## Metrics Server
+
+```bash
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+```
+
+and
+
+```bash
+helm upgrade --install metrics-server metrics-server/metrics-server
+```
+
+## Troubleshooting
+
+```bash
+flux get all -A --status-selector ready=false
+```
+
+and
+
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+and
+
+```bash
+flux reconcile helmrelease prometheus-adapter -n monitoring-system
+```
+
+and
+
+```bash
+flux reconcile helmrelease metrics-server -n monitoring-system
+```
+
+get customr metric scrape by prometheus
+
+```bash
+watch kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 | jq .
+```
+
+watch hpa with custom metric
+
+```bash
+watch kubectl -n demo get hpa
+```
+
+describe hpa to see result of scaling hpa
+
+```bash
+ kubectl -n demo-metric describe hpa podinfo
+```
+
 ## Reference
 
 - [install flux](https://fluxcd.io/flux/installation/#install-the-flux-cli)
@@ -337,7 +373,3 @@ flux get images all --all-namespaces
 - [aws gitops with flux readme](https://github.com/weaveworks/guestbook-gitops/tree/master)
 
 - [image policy flux](https://fluxcd.io/flux/guides/image-update/#imagepolicy-examples)
-
-- [flux commands](https://fluxcd.io/flux/cmd/flux/)
-
-- [toomany request dockerhub](https://stackoverflow.com/questions/65806330/toomanyrequests-you-have-reached-your-pull-rate-limit-you-may-increase-the-lim)

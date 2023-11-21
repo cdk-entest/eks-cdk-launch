@@ -762,3 +762,15 @@ spec:
 - [cloudwatch container insights knowledge center](https://repost.aws/knowledge-center/cloudwatch-container-insights-eks-fargate)
 
 - [kubernetes application logs](https://kubernetes.io/docs/concepts/cluster-administration/logging/)
+
+- [Centralized Container Logging with Fluent Bit](https://aws.amazon.com/blogs/opensource/centralized-container-logging-fluent-bit/)
+
+- [Capturing logs at scale with Fluent Bit and Amazon EKS](https://aws.amazon.com/blogs/containers/capturing-logs-at-scale-with-fluent-bit-and-amazon-eks/)
+
+- [Fluentd considerations and actions required at scale in Amazon EKS](https://aws.amazon.com/blogs/containers/fluentd-considerations-and-actions-required-at-scale-in-amazon-eks/)
+
+- [Using Prometheus to Avoid Disasters with Kubernetes CPU Limits](https://aws.amazon.com/blogs/containers/using-prometheus-to-avoid-disasters-with-kubernetes-cpu-limits/)
+
+- [Troubleshooting Amazon EKS API servers with Prometheus](https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/)
+
+- [Fluentd considerations and actions required at scale in Amazon EKS](https://aws.amazon.com/blogs/containers/fluentd-considerations-and-actions-required-at-scale-in-amazon-eks/)
