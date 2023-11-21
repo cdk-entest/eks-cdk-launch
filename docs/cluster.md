@@ -199,6 +199,12 @@ export class EksClusterStack extends Stack {
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonPollyFullAccess")
     );
 
+    nodeRole.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AmazonEBSCSIDriverPolicy"
+      )
+    );
+
     // aws managed nodegroup
     const nodegroup = new aws_eks.CfnNodegroup(
       this,
@@ -214,7 +220,7 @@ export class EksClusterStack extends Stack {
         // releaseVersion: ,
         capacityType: "ON_DEMAND",
         // default t3.medium
-        instanceTypes: ["t2.medium"],
+        instanceTypes: ["t3.xlarge"],
         diskSize: 50,
         // ssh remote access
         // remoteAccess: {
@@ -327,11 +333,6 @@ export class EksClusterStack extends Stack {
 ```
 
 </details>
-
-## Observability
-
-- Controle plane logging
-- CloudWatch Container Insights via add-on
 
 ## Compute and NodeGroup
 
@@ -460,6 +461,16 @@ aws eks update-kubeconfig --name demo --role-arn arn:aws:iam::575808125544:role/
 
 ## Container Insights
 
+- Option 1. Update NodeRole
+- Option 2. ServiceAccount
+
+Then there are two options to install CloudWatch Container Insights
+
+- Option 1. From AWS EKS Console add add-ons
+- Option 2. Using YAML files
+
+![add-on-aws-console](./../assets/add-on-from-aws-console.png)
+
 <details>
 <summary>NodeRole</summary>
 
@@ -578,6 +589,79 @@ Go to cloudwatch insights and loggroup to see metrics and logs
 
 ## Launch App
 
+Here is a stable-diffusion app
+
+<details>
+<summary>stable-diffusion-app.yaml</summary>
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-diffusion-app-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-southeast-1:796344100568:certificate/4edd9ff9-917a-4e1f-a07a-f98215e9d8e9
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+    - port: 443
+      targetPort: 3000
+      name: https
+  selector:
+    app: next-diffusion-app
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-diffusion-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: next-diffusion-app
+  template:
+    metadata:
+      labels:
+        app: next-diffusion-app
+    spec:
+      containers:
+        - image: 796344100568.dkr.ecr.ap-southeast-1.amazonaws.com/next-diffusion-app:latest
+          name: next-diffusion-app
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 500m
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: next-diffusion-app-hpa
+spec:
+  maxReplicas: 1000
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 5
+          type: Utilization
+      type: Resource
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: next-diffusion-app-deployment
+```
+
+</details>
+
 Here is a simple book-app.yaml
 
 <details>
@@ -678,12 +762,12 @@ spec:
   selector:
     matchLabels:
       app: hello-cdk8s
-      environment: prod
+      environment: dev 
   template:
     metadata:
       labels:
         app: hello-cdk8s
-        environment: prod
+        environment: dev 
     spec:
       containers:
         - image: paulbouwer/hello-kubernetes:1.7
@@ -751,3 +835,5 @@ spec:
 - [Introducing to Karpender on Amazon EKS 2021](https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler/)
 
 - [Migrate Cluster AutoScaler to Karpenter](https://karpenter.sh/docs/getting-started/migrating-from-cas/)
+
+- [Generative AI on Amazon EKS](https://aws.amazon.com/blogs/containers/deploy-generative-ai-models-on-amazon-eks/)

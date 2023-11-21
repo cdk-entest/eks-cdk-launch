@@ -1,3 +1,11 @@
+---
+title: scaling cluster with karpenter
+author: haimtran
+descripton: scaling cluster with karpenter
+publishedDate: 10/11/2023
+date: 10/11/2023
+---
+
 ## Karpenter
 
 ```bash
@@ -38,11 +46,7 @@ spec:
   ttlSecondsAfterEmpty: 30
 ```
 
-
-
-## Provisioner 
-
-
+## Provisioner
 
 ## Reference
 
